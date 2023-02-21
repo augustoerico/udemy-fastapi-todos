@@ -65,3 +65,13 @@ async def update(id: int, dto: UpdateTodoDto, db: Session = Depends(get_db)):
     return {
         "transaction": "successful"
     }
+
+
+@app.delete("/todos/{id}", status_code=204)
+async def delete(id: int, db: Session = Depends(get_db)):
+    todo = db.get(models.Todo, id)
+    if todo is None:
+        raise NotFoundException()
+    
+    db.delete(todo)
+    db.commit()
