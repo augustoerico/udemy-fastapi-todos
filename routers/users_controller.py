@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -10,9 +10,6 @@ import models
 from dtos import CreateUserDto
 from http_exceptions import UnauthorizedException
 from database import SessionLocal, engine
-
-import uvicorn
-import simplejson as json
 
 
 SECRET_KEY = "super-secret-stuff-key"
@@ -26,7 +23,7 @@ models.Base.metadata.create_all(bind=engine)
 # oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/users/login")
 
-app = FastAPI()
+router = APIRouter()
 
 
 def get_db():
@@ -79,7 +76,7 @@ async def get_current_user(token: str = Depends(oauth2_bearer)):
         raise UnauthorizedException(details=details)
 
 
-@app.post("/users")
+@router.post("/users")
 async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     user = models.User()
     user.username = dto.username
@@ -95,7 +92,7 @@ async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     return user
 
 
-@app.post("/users/login")
+@router.post("/users/login")
 async def login(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(data.username, data.password, db)
     if not user:
@@ -104,7 +101,3 @@ async def login(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     token = create_access_token(user.username, user.id, expires_delta=token_expires)
     print(token)
     return {"token": token}
-
-
-if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0')

@@ -5,14 +5,15 @@ import models
 from database import engine, SessionLocal
 from http_exceptions import NotFoundException
 from dtos import CreateTodoDto, UpdateTodoDto
-from users_controller import get_current_user
+from routers.users_controller import get_current_user
 from http_exceptions import UnauthorizedException
-
+from routers import users_controller
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
 
+app.include_router(users_controller.router)
 
 def get_db():
     try:
