@@ -5,6 +5,8 @@ import models
 from database import engine, SessionLocal
 from http_exceptions import NotFoundException
 from dtos import CreateTodoDto, UpdateTodoDto
+from users_controller import get_current_user
+from http_exceptions import UnauthorizedException
 
 
 app = FastAPI()
@@ -35,9 +37,18 @@ async def create(dto: CreateTodoDto, db: Session = Depends(get_db)):
     }
 
 
-@app.get("/todos")
+@app.get("/admin/todos")
 async def read_all(db: Session = Depends(get_db)):
     return db.query(models.Todo).all()
+
+
+@app.get("/todos")
+async def read_all_by_user(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user is None:
+        raise UnauthorizedException()
+    return db.query(models.Todo)\
+            .filter(models.Todo.user_id == user.get("user_id"))\
+            .all()
 
 
 @app.get("/todos/{id}")

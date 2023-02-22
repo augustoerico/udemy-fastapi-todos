@@ -8,3 +8,16 @@ Content-Type: application/json
     "last_name": "Bar",
     "password": "bar"
 }
+
+###
+
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+    "username": "bar",
+    "email": "bar@email.com",
+    "first_name": "Bar",
+    "last_name": "Foo",
+    "password": "foo"
+}

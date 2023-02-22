@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from datetime import datetime, timedelta
-from jose import jwt
+from jose import jwt, JWTError
 from typing import Optional
 
 import models
@@ -63,6 +63,20 @@ def create_access_token(username: str, user_id: int, expires_delta: Optional[tim
         expire = datetime.utcnow() + timedelta(minutes=15)
     claims = {"sub": username, "id": user_id, "exp": expire}
     return jwt.encode(claims, SECRET_KEY, algorithm=ALGORITHM)
+
+
+async def get_current_user(token: str = Depends(oauth2_bearer)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+        if username is None or user_id is None:
+            details = "user data missing"
+            raise UnauthorizedException(details=details)
+        return {"username": username, "user_id": user_id}
+    except JWTError:
+        details = "invalid JWT"
+        raise UnauthorizedException(details=details)
 
 
 @app.post("/users")
