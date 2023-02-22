@@ -22,7 +22,7 @@ def get_db():
         db.close()
 
 
-def get_todo_by_id(id: int, user_id: int, db: Session, ):
+def get_todo_by_id(id: int, user_id: int, db: Session):
     todo = db.query(models.Todo)\
             .filter(models.Todo.id == id)\
             .filter(models.Todo.user_id == user_id)\
@@ -94,8 +94,8 @@ async def update(id: int, dto: UpdateTodoDto,
 
 
 @app.delete("/todos/{id}", status_code=204)
-async def delete(id: int, db: Session = Depends(get_db)):
-    todo = db.get(models.Todo, id)
+async def delete(id: int, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    todo = get_todo_by_id(id, user.get("user_id"), db)
     if todo is None:
         raise NotFoundException()
     
