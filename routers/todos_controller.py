@@ -9,7 +9,10 @@ from http_exceptions import UnauthorizedException
 
 from .users_controller import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/todos",
+    tags=["todos"]
+)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -31,7 +34,7 @@ def get_todo_by_id(id: int, user_id: int, db: Session):
     return todo
 
 
-@router.post("/todos", status_code=201)
+@router.post("", status_code=201)
 async def create(dto: CreateTodoDto,
                 user: dict = Depends(get_current_user),
                 db: Session = Depends(get_db)):
@@ -49,12 +52,12 @@ async def create(dto: CreateTodoDto,
     }
 
 
-@router.get("/admin/todos")
+@router.get("/admin")
 async def read_all(db: Session = Depends(get_db)):
     return db.query(models.Todo).all()
 
 
-@router.get("/todos")
+@router.get("")
 async def read_all_by_user(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     if user is None:
         raise UnauthorizedException()
@@ -63,7 +66,7 @@ async def read_all_by_user(user: dict = Depends(get_current_user), db: Session =
             .all()
 
 
-@router.get("/todos/{id}")
+@router.get("/{id}")
 async def read(id: int, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     if user is None:
         raise UnauthorizedException()
@@ -71,7 +74,7 @@ async def read(id: int, user: dict = Depends(get_current_user), db: Session = De
     return get_todo_by_id(id, user.get('user_id'), db)
 
 
-@router.patch("/todos/{id}")
+@router.patch("/{id}")
 async def update(id: int, dto: UpdateTodoDto,
                     user: dict = Depends(get_current_user),
                     db: Session = Depends(get_db)):
@@ -92,7 +95,7 @@ async def update(id: int, dto: UpdateTodoDto,
     }
 
 
-@router.delete("/todos/{id}", status_code=204)
+@router.delete("/{id}", status_code=204)
 async def delete(id: int, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     todo = get_todo_by_id(id, user.get("user_id"), db)
     if todo is None:
@@ -102,7 +105,7 @@ async def delete(id: int, user: dict = Depends(get_current_user), db: Session = 
     db.commit()
 
 
-@router.post("/todos/{id}/complete")
+@router.post("/{id}/complete")
 async def complete(id: int, user: dict = Depends(get_current_user),
                     db: Session = Depends(get_db)):
     todo = get_todo_by_id(id, user.get('user_id'), db)
