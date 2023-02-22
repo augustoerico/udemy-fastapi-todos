@@ -1,17 +1,30 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from datetime import datetime, timedelta
+from jose import jwt
+from typing import Optional
 
 import models
 from dtos import CreateUserDto
 from http_exceptions import UnauthorizedException
 from database import SessionLocal, engine
 
+import uvicorn
+import simplejson as json
+
+
+SECRET_KEY = "super-secret-stuff-key"
+ALGORITHM = "HS256"
+
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 models.Base.metadata.create_all(bind=engine)
+
+# oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 app = FastAPI()
 
@@ -43,6 +56,15 @@ def authenticate_user(username, password, db: Session = Depends(get_db)):
     return user
 
 
+def create_access_token(username: str, user_id: int, expires_delta: Optional[timedelta] = None):
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    claims = {"sub": username, "id": user_id, "exp": expire}
+    return jwt.encode(claims, SECRET_KEY, algorithm=ALGORITHM)
+
+
 @app.post("/users")
 async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     user = models.User()
@@ -64,4 +86,11 @@ async def login(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     user = authenticate_user(data.username, data.password, db)
     if not user:
         raise UnauthorizedException()
-    return "Aehoo, user authenticated"
+    token_expires = timedelta(minutes=20)
+    token = create_access_token(user.username, user.id, expires_delta=token_expires)
+    print(token)
+    return {"token": token}
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0')
