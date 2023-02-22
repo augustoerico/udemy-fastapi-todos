@@ -101,3 +101,16 @@ async def delete(id: int, user: dict = Depends(get_current_user), db: Session = 
     
     db.delete(todo)
     db.commit()
+
+
+@app.post("/todos/{id}/complete")
+async def complete(id: int, user: dict = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    todo = get_todo_by_id(id, user.get('user_id'), db)
+    todo.complete = True
+
+    db.add(todo)
+    db.commit()
+    return {
+        "transaction": "successful"
+    }
