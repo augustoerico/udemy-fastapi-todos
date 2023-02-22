@@ -22,6 +22,16 @@ def get_db():
         db.close()
 
 
+def get_todo_by_id(id: int, user_id: int, db: Session, ):
+    todo = db.query(models.Todo)\
+            .filter(models.Todo.id == id)\
+            .filter(models.Todo.user_id == user_id)\
+            .first()
+    if todo is None:
+        raise NotFoundException()
+    return todo
+
+
 @app.post("/todos", status_code=201)
 async def create(dto: CreateTodoDto, db: Session = Depends(get_db)):
     todo = models.Todo()
@@ -56,13 +66,7 @@ async def read(id: int, user: dict = Depends(get_current_user), db: Session = De
     if user is None:
         raise UnauthorizedException()
     
-    todo = db.query(models.Todo)\
-            .filter(models.Todo.id == id)\
-            .filter(models.Todo.user_id == user.get("user_id"))\
-            .first()
-    if todo is None:
-        raise NotFoundException()
-    return todo
+    return get_todo_by_id(id, user.get('user_id'), db)
 
 
 @app.patch("/todos/{id}")
