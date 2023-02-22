@@ -33,12 +33,15 @@ def get_todo_by_id(id: int, user_id: int, db: Session, ):
 
 
 @app.post("/todos", status_code=201)
-async def create(dto: CreateTodoDto, db: Session = Depends(get_db)):
+async def create(dto: CreateTodoDto,
+                user: dict = Depends(get_current_user),
+                db: Session = Depends(get_db)):
     todo = models.Todo()
     todo.title = dto.title
     todo.description = dto.description
     todo.priority = dto.priority
     todo.complete = False
+    todo.user_id = user.get('user_id')
 
     db.add(todo)
     db.commit()
