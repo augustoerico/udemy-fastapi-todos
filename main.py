@@ -70,8 +70,10 @@ async def read(id: int, user: dict = Depends(get_current_user), db: Session = De
 
 
 @app.patch("/todos/{id}")
-async def update(id: int, dto: UpdateTodoDto, db: Session = Depends(get_db)):
-    todo = db.get(models.Todo, id)
+async def update(id: int, dto: UpdateTodoDto,
+                    user: dict = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    todo = get_todo_by_id(id, user.get('user_id'), db)
     if todo is None:
         raise NotFoundException()
     if dto.title is not None:
