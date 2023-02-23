@@ -14,6 +14,12 @@ router = APIRouter(
 )
 
 
+def get_user(user_id: int, db: Session):
+    return db.query(models.User)\
+            .filter(models.User.id == user_id)\
+            .first()
+
+
 @router.post("/users")
 async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     user = models.User()
@@ -32,18 +38,22 @@ async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
 
 @router.get("/user")
 async def read_user(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    return db.query(models.User)\
-            .filter(models.User.id == user.get("user_id"))\
-            .first()
+    return get_user(user.get("user_id"), db)
 
 
 @router.post("/user/password")
 async def update_password(dto: UpdatePasswordDto, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    user = db.query(models.User)\
-            .filter(models.User.id == user.get("user_id"))\
-            .first()
+    user = get_user(user.get("user_id"), db)
     user.hashed_password = get_password_hash(dto.password)
     
     db.add(user)
     db.commit()
     return {"transaction": "successful"}
+
+
+@router.delete("/user", status_code=204)
+async def delete_user(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = get_user(user.get("user_id"), db)
+
+    db.delete(user)
+    db.commit()
