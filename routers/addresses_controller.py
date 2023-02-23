@@ -23,6 +23,7 @@ async def create(dto: CreateAddressDto, user: dict = Depends(get_current_user), 
     address.state = dto.state
     address.country = dto.country
     address.postal_code = dto.postal_code
+    address.apt_num = dto.apt_num
 
     db.add(address)
     db.flush()

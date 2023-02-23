@@ -34,3 +34,4 @@ class CreateAddressDto(BaseModel):
     state: str
     country: str
     postal_code: str
+    apt_num: Optional[str]

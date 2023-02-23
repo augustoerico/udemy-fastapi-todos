@@ -44,5 +44,6 @@ class Address(Base):
     state = Column(String)
     country = Column(String)
     postal_code = Column(String)
+    apt_num = Column(String, nullable=True)
 
     user_address = relationship("User", back_populates="address")
