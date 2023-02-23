@@ -20,3 +20,7 @@ class CreateUserDto(BaseModel):
     first_name: str
     last_name: str
     password: str = Field(min_length=1)
+
+
+class UpdatePasswordDto(BaseModel):
+    password: str = Field(min_length=3)

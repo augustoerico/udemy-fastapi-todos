@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 
 import models
-from dtos import CreateUserDto
+from dtos import CreateUserDto, UpdatePasswordDto
 from database import engine, get_db
 from auth import get_password_hash, get_current_user
 
@@ -32,7 +32,13 @@ async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
 
 
 @router.post("/password")
-async def update_password(password: str, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    user = db.get(user.get('user_id'))
+async def update_password(dto: UpdatePasswordDto, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     print(user)
-    pass
+    user = db.query(models.User)\
+            .filter(models.User.id == user.get("user_id"))\
+            .first()
+    user.hashed_password = get_password_hash(dto.password)
+    
+    db.add(user)
+    db.commit()
+    return {"transaction": "successful"}
