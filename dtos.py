@@ -24,3 +24,12 @@ class CreateUserDto(BaseModel):
 
 class UpdatePasswordDto(BaseModel):
     password: str = Field(min_length=3)
+
+
+class CreateAddressDto(BaseModel):
+    address1: str
+    address2: str
+    city: str
+    state: str
+    country: str
+    postal_code: str

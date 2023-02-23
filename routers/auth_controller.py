@@ -3,13 +3,12 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from datetime import timedelta
 
-import models
 from http_exceptions import UnauthorizedException
 from database import engine, get_db
 from auth import authenticate_user, create_access_token
 
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter(

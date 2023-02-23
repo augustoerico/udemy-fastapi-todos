@@ -13,9 +13,12 @@ class User(Base):
     last_name = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-
+    phone_number = Column(String)
+    
     todos = relationship("Todo", back_populates="user")
 
+    address_id = Column(Integer, ForeignKey("addresses.id"), nullable=True)
+    address = relationship("Address", back_populates="user_address")
 
 
 class Todo(Base):
@@ -27,6 +30,19 @@ class Todo(Base):
     priority = Column(Integer)
     complete = Column(Boolean, default=False)
 
-    # user_id = mapped_column(ForeignKey("users.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="todos")
+
+
+class Address(Base):
+    __tablename__ = 'addresses'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    address1 = Column(String)
+    address2 = Column(String)
+    city = Column(String)
+    state = Column(String)
+    country = Column(String)
+    postal_code = Column(String)
+
+    user_address = relationship("User", back_populates="address")

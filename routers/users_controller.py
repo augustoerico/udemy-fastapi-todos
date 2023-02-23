@@ -6,7 +6,7 @@ from dtos import CreateUserDto, UpdatePasswordDto
 from database import engine, get_db
 from auth import get_password_hash, get_current_user
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine) # database already created
 
 
 router = APIRouter(
