@@ -10,12 +10,11 @@ models.Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter(
-    prefix="/users",
     tags=["users"]
 )
 
 
-@router.post("")
+@router.post("/users")
 async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     user = models.User()
     user.username = dto.username
@@ -31,9 +30,8 @@ async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/password")
+@router.post("/user/password")
 async def update_password(dto: UpdatePasswordDto, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    print(user)
     user = db.query(models.User)\
             .filter(models.User.id == user.get("user_id"))\
             .first()
