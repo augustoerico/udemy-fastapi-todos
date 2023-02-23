@@ -7,7 +7,7 @@ from http_exceptions import NotFoundException
 from dtos import CreateTodoDto, UpdateTodoDto
 from http_exceptions import UnauthorizedException
 
-from .users_controller import get_current_user
+from auth import get_current_user
 
 router = APIRouter(
     prefix="/todos",
@@ -50,11 +50,6 @@ async def create(dto: CreateTodoDto,
     return {
         "transaction": "successful"
     }
-
-
-@router.get("/admin")
-async def read_all(db: Session = Depends(get_db)):
-    return db.query(models.Todo).all()
 
 
 @router.get("")
