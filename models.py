@@ -13,7 +13,7 @@ class User(Base):
     last_name = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    phone_number = Column(String)
+    phone_number = Column(String, nullable=True)
     
     todos = relationship("Todo", back_populates="user")
 

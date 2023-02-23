@@ -29,6 +29,7 @@ async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     user.last_name = dto.last_name
     user.hashed_password = get_password_hash(dto.password)
     user.is_active = True
+    user.phone_number = dto.phone_number
 
     db.add(user)
     db.commit()
