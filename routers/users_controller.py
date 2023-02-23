@@ -30,6 +30,13 @@ async def create_user(dto: CreateUserDto, db: Session = Depends(get_db)):
     return user
 
 
+@router.get("/user")
+async def read_user(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.query(models.User)\
+            .filter(models.User.id == user.get("user_id"))\
+            .first()
+
+
 @router.post("/user/password")
 async def update_password(dto: UpdatePasswordDto, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     user = db.query(models.User)\
